@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar - Soul Única</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .logo-login {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #d88195;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn-google {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: #444;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-google:hover {
+            background-color: #f8f9fa;
+            color: #000;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+    <div class="container" style="max-width: 400px;">
+        <div class="card shadow-sm border-0 p-4 text-center">
+            
+            <!-- Logo da Clínica em Destaque -->
+            <div class="mb-3">
+                <img src="{{ url_for('static', filename='images/fachada.jpg') }}" alt="Soul Única Logo" class="logo-login">
+            </div>
+
+            <h3 class="fw-bold mb-1" style="color: #d88195;">Soul Única</h3>
+            <p class="text-muted small mb-4">Crie a sua conta de acesso</p>
+            
+            {% if erro %}
+                <div class="alert alert-danger py-2 small">{{ erro }}</div>
+            {% endif %}
+
+            <!-- Botão de Cadastro Rápido com Google -->
+            <a href="{{ url_for('painel_agendamento') }}" class="btn btn-google w-100 mb-3 py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                Cadastrar com o Google
+            </a>
+
+            <div class="d-flex align-items-center my-3">
+                <hr class="flex-grow-1">
+                <span class="px-2 text-muted small">ou preencha abaixo</span>
+                <hr class="flex-grow-1">
+            </div>
+
+            <!-- Formulário Clássico de Cadastro -->
+            <form method="POST" class="text-start">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Nome Completo:</label>
+                    <input type="text" name="nome" class="form-control" required placeholder="Seu nome">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Telefone:</label>
+                    <input type="text" name="telefone" class="form-control" required placeholder="(48) 99999-9999">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Palavra-passe:</label>
+                    <input type="password" name="senha" class="form-control" required placeholder="Crie uma palavra-passe">
+                </div>
+                <button type="submit" class="btn w-100 fw-bold text-white py-2" style="background-color: #d88195;">Criar Conta</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <span class="small text-muted">Já tem conta?</span> <a href="{{ url_for('login_cliente') }}" class="small text-decoration-none fw-bold" style="color: #d88195;">Faça login</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

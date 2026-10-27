@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Soul Única</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light pb-5">
+
+    <!-- Navegação do Painel Admin -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">✨ Soul Única - Painel de Gestão</a>
+            <a href="{{ url_for('logout_admin') }}" class="btn btn-outline-light btn-sm">Sair do Painel</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- Gráfico de Atendimentos Realizados -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">📊 Volume de Atendimentos Realizados</h5>
+                <canvas id="graficoVendas" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+
+        <!-- GESTÃO DE PREÇOS E CATÁLOGO DE SERVIÇOS -->
+        <div class="row mb-4">
+            <!-- Tabela para Atualizar Preços -->
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">
+                        ⚙️ Atualizar Preços dos Procedimentos
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Serviço</th>
+                                        <th>Preço Atual</th>
+                                        <th>Novo Preço (R$)</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for s in servicos %}
+                                    <tr>
+                                        <td><b>{{ s.nome }}</b></td>
+                                        <td>R$ {{ "%.2f"|format(s.preco) }}</td>
+                                        <form action="{{ url_for('editar_preco') }}" method="POST">
+                                            <input type="hidden" name="nome" value="{{ s.nome }}">
+                                            <td><input type="number" step="0.01" name="novo_preco" class="form-control form-control-sm" required style="width: 100px;"></td>
+                                            <td><button type="submit" class="btn btn-sm btn-outline-primary">Atualizar</button></td>
+                                        </form>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulário para Adicionar Novo Serviço -->
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">
+                        ➕ Adicionar Novo Procedimento
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('adicionar_servico') }}" method="POST">
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Nome do Procedimento:</label>
+                                <input type="text" name="nome" class="form-control form-control-sm" required placeholder="Ex: Limpeza de Pele Profunda">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Descrição Curta:</label>
+                                <input type="text" name="descricao" class="form-control form-control-sm" required placeholder="Breve resumo do tratamento">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Preço (R$):</label>
+                                <input type="number" step="0.01" name="preco" class="form-control form-control-sm" required placeholder="150.00">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Nome da Imagem (na pasta static/images/):</label>
+                                <input type="text" name="imagem" class="form-control form-control-sm" placeholder="ex: limpeza.jpg">
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-success w-100 fw-bold">Registar Novo Procedimento</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Agenda e Atendimentos -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold fs-5">
+                📅 Gestão de Agendamentos de Clientes
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Profissional</th>
+                                <th>Data / Hora</th>
+                                <th>Serviços</th>
+                                <th>Pagamento</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in agendamentos %}
+                            <tr>
+                                <td><b>#{{ item.id }}</b></td>
+                                <td>{{ item.cliente }}</td>
+                                <td>{{ item.profissional }}</td>
+                                <td>{{ item.data }} - {{ item.horario }}</td>
+                                <td><span class="badge bg-secondary">{{ item.servicos|join(', ') if item.servicos is iterable else item.servicos }}</span></td>
+                                <td><span class="badge bg-info text-dark">{{ item.pagamento }}</span></td>
+                                <td class="fw-bold text-success">R$ {{ "%.2f"|format(item.valor_total) if item.valor_total else '0.00' }}</td>
+                                <td>
+                                    {% if item.status == 'Concluído' %}
+                                        <span class="badge bg-success">Concluído</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('concluir_agendamento', id_agendamento=item.id) }}" class="btn btn-sm btn-outline-success" title="Mudar Status">
+                                        ✓ Alternar Status
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">Nenhum agendamento registado até ao momento.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <p class="text-center mt-3"><a href="{{ url_for('index') }}" target="_blank" class="text-muted small">Ver site público da clínica ↗</a></p>
+    </div>
+
+    <!-- Script do Gráfico Chart.js -->
+    <script>
+        const ctx = document.getElementById('graficoVendas').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'],
+                datasets: [{
+                    label: 'Atendimentos Realizados',
+                    data: [12, 19, 15, 22, 28, 35],
+                    backgroundColor: '#d88195',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Administrativo - Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fbebee; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 320px; text-align: center; }
+        h2 { color: #d88195; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #d88195; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .erro { color: red; font-size: 0.85rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Área Restrita (Admin)</h2>
+        <form method="POST">
+            <input type="password" name="senha" placeholder="Palavra-passe de acesso" required>
+            <button type="submit">Entrar no Painel</button>
+        </form>
+        {% if erro %}<p class="erro">{{ erro }}</p>{% endif %}
+    </div>
+</body>
+</html>

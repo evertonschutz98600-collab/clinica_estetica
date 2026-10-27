@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soul Única - Estética & Bem-Estar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        .hero-banner {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1.5s ease-in-out;
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1;
+        }
+        .z-index-2 { z-index: 2; }
+        .card-servico {
+            cursor: pointer;
+            transition: transform 0.2s, shadow 0.2s;
+        }
+        .card-servico:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        }
+        .card-servico.selecionado {
+            border: 2px solid #d88195 !important;
+            background-color: #fff9fa;
+        }
+        .bar-agendamento {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-light pb-5 mb-5">
+
+    <!-- Cabeçalho Dinâmico com Carrossel de Fotos de Fundo -->
+    <header class="hero-banner text-white text-center shadow" id="heroHeader">
+        <div class="hero-overlay"></div>
+        <div class="container position-relative z-index-2 py-4">
+            <img src="{{ url_for('static', filename='images/fachada.jpg') }}" alt="Soul Única Logo" class="rounded-circle mb-3 border border-3 border-white shadow" style="width: 100px; height: 100px; object-fit: cover;">
+            <h1 class="fw-bold display-5">Soul Única</h1>
+            <p class="lead mb-2">Realçando sua beleza natural com sofisticação e cuidado</p>
+            <div class="mt-2">
+                <span class="badge bg-light text-dark fs-6 p-2">✨ Escolha seus procedimentos abaixo para iniciar o agendamento!</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contentor com Assistente 3D e Lista de Serviços -->
+    <div class="container mt-4">
+        
+        <!-- Avatar 3D e Balão de Fala -->
+        <div class="row align-items-center bg-white p-3 rounded shadow-sm mb-4">
+            <div class="col-md-4 text-center">
+                <model-viewer 
+                    src="{{ url_for('static', filename='images/avatar.glb') }}" 
+                    alt="Assistente Virtual 3D" 
+                    auto-rotate 
+                    camera-controls 
+                    style="width: 100%; height: 220px;">
+                </model-viewer>
+            </div>
+            <div class="col-md-8">
+                <div class="alert alert-light border shadow-sm">
+                    <h5 class="fw-bold text-dark">✨ Assistente Soul Única</h5>
+                    <p id="textoBalao" class="mb-0 text-muted">Selecione um procedimento abaixo para ouvir as explicações detalhadas e escolher os seus tratamentos!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Serviços -->
+        <h3 class="fw-bold mb-3 text-secondary">Nossos Procedimentos</h3>
+        <div class="row">
+            {% for servico in servicos %}
+            <div class="col-md-4 mb-4">
+                <div class="card card-servico shadow-sm h-100 border-0" onclick="selecionarServico(this, '{{ servico.nome }}', {{ servico.preco }}, '{{ servico.audio }}', '{{ servico.descricao }}')">
+                    <img src="{{ url_for('static', filename='images/' + servico.imagem) }}" class="card-img-top" alt="{{ servico.nome }}" style="height: 180px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ servico.nome }}</h5>
+                        <p class="card-text text-muted small">{{ servico.descricao }}</p>
+                        <p class="card-text fw-bold fs-5 text-success">R$ {{ "%.2f"|format(servico.preco) }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Barra Flutuante de Agendamento (Inicia oculta via 'd-none') -->
+    <div id="barraAgendamento" class="bar-agendamento p-3 border-top d-none">
+        <div class="container">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label mb-0 fw-bold">Nome do Cliente:</label>
+                    <input type="text" id="nomeCliente" class="form-control" placeholder="Seu Nome Completo">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label mb-0 fw-bold">Profissional:</label>
+                    <select id="profissional" class="form-select">
+                        <option value="Dra. Paula">Dra. Paula</option>
+                        <option value="Dra. Amanda">Dra. Amanda</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label mb-0 fw-bold">Data & Hora:</label>
+                    <input type="datetime-local" id="dataHorario" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-0 fw-bold">Pagamento:</label>
+                    <select id="formaPagamento" class="form-select" onchange="mostrarOpcoesPagamento()">
+                        <option value="Pix (À vista - 5% desc.)">Pix (À vista com 5% desc.)</option>
+                        <option value="Cartão de Crédito (À vista)">Cartão de Crédito (À vista)</option>
+                        <option value="Cartão de Crédito Parcelado">Cartão de Crédito Parcelado</option>
+                        <option value="Dinheiro / No Local">Pagar no Local (Dinheiro/Cartão)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <span class="d-block fw-bold text-muted small">Total:</span>
+                    <span id="valorTotalTexto" class="fs-5 fw-bold text-success">R$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- Campo dinâmico de Parcelas do Cartão -->
+            <div class="row mt-2 d-none" id="blocoParcelas">
+                <div class="col-md-4 offset-md-7">
+                    <label class="form-label mb-0 small text-muted">Parcelas no Cartão:</label>
+                    <select id="qtdParcelas" class="form-select form-select-sm">
+                        <option value="2x sem juros">2x sem juros</option>
+                        <option value="3x sem juros">3x sem juros</option>
+                        <option value="4x sem juros">4x sem juros</option>
+                        <option value="5x sem juros">5x sem juros</option>
+                        <option value="6x sem juros">6x sem juros</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bloco do QR Code do Pix -->
+            <div id="areaPix" class="alert alert-success mt-3 text-center d-none">
+                <p class="mb-1 fw-bold">📱 Escaneie o QR Code para efetuar o pagamento via Pix:</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=00020126580014br.gov.bcb.pix...soulunica" alt="QR Code Pix" class="img-fluid border p-1 bg-white rounded my-2" style="max-width: 120px;">
+                <p class="small text-muted mb-0">Chave Pix: <b>48999999999</b> (Soul Única Estética)<br>Envie o comprovante no WhatsApp após clicar no botão abaixo!</p>
+            </div>
+
+            <!-- Botão de Ação -->
+            <div class="mt-3 text-end">
+                <button class="btn btn-success btn-lg w-100 fw-bold" onclick="confirmarAgendamento()">
+                    🟢 Confirmar Agendamento via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="playerAudio"></audio>
+
+    <script>
+        // Carrossel de fotos de fundo no cabeçalho
+        const imagensFundo = [
+            "{{ url_for('static', filename='images/fachada.jpg') }}",
+            "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1512290900674-57a423215893?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1200&auto=format&fit=crop"
+        ];
+        let indiceImg = 0;
+        const headerElem = document.getElementById('heroHeader');
+
+        function alternarFundo() {
+            if (headerElem && imagensFundo.length > 0) {
+                headerElem.style.backgroundImage = `url('${imagensFundo[indiceImg]}')`;
+                indiceImg = (indiceImg + 1) % imagensFundo.length;
+            }
+        }
+        alternarFundo();
+        setInterval(alternarFundo, 5000);
+
+        // Lógica de seleção de serviços e controle da barra de agendamento
+        let servicosSelecionados = [];
+        let valorTotal = 0;
+
+        function selecionarServico(elemento, nome, preco, audioFile, descricao) {
+            elemento.classList.toggle('selecionado');
+            
+            const index = servicosSelecionados.indexOf(nome);
+            if (index > -1) {
+                servicosSelecionados.splice(index, 1);
+                valorTotal -= preco;
+            } else {
+                servicosSelecionados.push(nome);
+                valorTotal += preco;
+            }
+
+            document.getElementById('valorTotalTexto').innerText = `R$ ${valorTotal.toFixed(2)}`;
+            document.getElementById('textoBalao').innerText = `${nome}: ${descricao}`;
+
+            // Mostra ou oculta a barra de agendamento com base na seleção
+            const barraAgendamento = document.getElementById('barraAgendamento');
+            if (servicosSelecionados.length > 0) {
+                barraAgendamento.classList.remove('d-none');
+            } else {
+                barraAgendamento.classList.add('d-none');
+            }
+
+            if (audioFile) {
+                const player = document.getElementById('playerAudio');
+                player.src = `/static/audio/${audioFile}`;
+                player.play().catch(e => console.log("Áudio bloqueado pelo navegador"));
+            }
+        }
+
+        function mostrarOpcoesPagamento() {
+            const pagamento = document.getElementById('formaPagamento').value;
+            const blocoParcelas = document.getElementById('blocoParcelas');
+            const areaPix = document.getElementById('areaPix');
+
+            if (pagamento === 'Cartão de Crédito Parcelado') {
+                blocoParcelas.classList.remove('d-none');
+            } else {
+                blocoParcelas.classList.add('d-none');
+            }
+
+            if (pagamento.includes('Pix')) {
+                areaPix.classList.remove('d-none');
+            } else {
+                areaPix.classList.add('d-none');
+            }
+        }
+
+        function confirmarAgendamento() {
+            const nome = document.getElementById('nomeCliente').value;
+            const profissional = document.getElementById('profissional').value;
+            const dataHorario = document.getElementById('dataHorario').value;
+            const formaPagamento = document.getElementById('formaPagamento').value;
+
+            if (!nome) { alert('Por favor, informe o seu nome!'); return; }
+            if (servicosSelecionados.length === 0) { alert('Selecione pelo menos um procedimento!'); return; }
+            if (!dataHorario) { alert('Escolha a data e o horário desejados!'); return; }
+
+            let detalhesPagamento = formaPagamento;
+            if (formaPagamento === 'Cartão de Crédito Parcelado') {
+                const parcelas = document.getElementById('qtdParcelas').value;
+                detalhesPagamento = `Cartão de Crédito (${parcelas})`;
+            }
+
+            const dados = {
+                cliente: nome,
+                profissional: profissional,
+                data: dataHorario.split('T')[0],
+                horario: dataHorario.split('T')[1],
+                servicos: servicosSelecionados,
+                pagamento: detalhesPagamento,
+                valor_total: valorTotal
+            };
+
+            // Envia para o backend e redireciona para o WhatsApp
+            fetch('/salvar_agendamento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            }).then(response => response.json())
+              .then(data => {
+                  const numWhatsApp = "5548999999999"; // Substitua pelo número da clínica
+                  const msg = `Olá! Gostaria de confirmar o meu agendamento na Soul Única:\n\n` +
+                              `👤 *Cliente:* ${nome}\n` +
+                              `👩‍⚕️ *Profissional:* ${profissional}\n` +
+                              `📅 *Data/Hora:* ${dados.data} às ${dados.horario}\n` +
+                              `✨ *Serviços:* ${servicosSelecionados.join(', ')}\n` +
+                              `💳 *Pagamento:* ${detalhesPagamento}\n` +
+                              `💰 *Valor Total:* R$ ${valorTotal.toFixed(2)}`;
+
+                  const url = `https://wa.me/${numWhatsApp}?text=${encodeURIComponent(msg)}`;
+                  window.open(url, '_blank');
+              });
+        }
+    </script>
+</body>
+</html>

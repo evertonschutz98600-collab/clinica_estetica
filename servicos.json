@@ -1,0 +1,22 @@
+[
+    {
+        "id": "toxina",
+        "nome": "Toxina Botulínica",
+        "descricao": "Suaviza rugas e linhas de expressão com acabamento natural.",
+        "explicacao": "A Toxina Botulínica relaxa a musculatura facial suavemente, prevenindo e amenizando as linhas de expressão.",
+        "audio": "toxina.mp3",
+        "preco": 1000.0,
+        "imagem": "toxina.jpg",
+        "categoria": "Facial"
+    },
+    {
+        "id": "lash",
+        "nome": "Lash Lifting",
+        "descricao": "Aspecto de cílios mais curvos e longos sem extensão.",
+        "explicacao": "O Lash Lifting curva e nutre os teus próprios cílios naturais, dando um efeito duradouro.",
+        "audio": "lash.mp3",
+        "preco": 50.0,
+        "imagem": "lash-lifting.jpg",
+        "categoria": "Olhares"
+    }
+]

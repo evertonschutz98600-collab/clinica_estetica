@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificar Telemóvel - Soul Única</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .logo-login {
+            width: 80px; height: 80px;
+            object-fit: cover; border-radius: 50%;
+            border: 3px solid #d88195;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+    <div class="container" style="max-width: 400px;">
+        <div class="card shadow-sm border-0 p-4 text-center">
+            
+            <div class="mb-3">
+                <img src="{{ url_for('static', filename='images/fachada.jpg') }}" alt="Soul Única Logo" class="logo-login">
+            </div>
+
+            <h4 class="fw-bold mb-2" style="color: #d88195;">Confirmação por WhatsApp</h4>
+            <p class="text-muted small mb-3">Olá <b>{{ nome }}</b>! Para validar o seu número <b>{{ telefone }}</b>, clique abaixo para receber o código no seu WhatsApp.</p>
+            
+            {% if erro %}
+                <div class="alert alert-danger py-2 small">{{ erro }}</div>
+            {% endif %}
+
+            <!-- Botão que abre o WhatsApp do próprio cliente com a mensagem do código -->
+            <div class="mb-3 p-3 bg-white border rounded shadow-sm">
+                <a href="https://wa.me/{{ telefone }}?text=✨%20Soul%20Única:%20O%20seu%20código%20de%20verificação%20de%20cadastro%20é:%20*{{ codigo }}*" target="_blank" class="btn btn-success btn-sm w-100 fw-bold mb-2 py-2">
+                    📱 Receber Código no meu WhatsApp
+                </a>
+                <span class="d-block text-muted" style="font-size: 11px;">(Clique para enviar o código para o seu telemóvel e consultar)</span>
+            </div>
+
+            <!-- Formulário para digitar o código recebido -->
+            <form method="POST">
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Digite o código de 4 dígitos:</label>
+                    <input type="text" name="codigo" class="form-control text-center fs-4 tracking-wide" required maxlength="4" placeholder="0000">
+                </div>
+                <button type="submit" class="btn w-100 fw-bold text-white py-2" style="background-color: #d88195;">Validar e Entrar na Plataforma</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{{ url_for('cadastro') }}" class="small text-muted text-decoration-none">← Alterar número de telemóvel</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
